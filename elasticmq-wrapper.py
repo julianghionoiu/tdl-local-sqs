@@ -104,6 +104,10 @@ def wait_until_port_is_closed(port, count, delay):
 
 
 def kill_process(pid_file):
+    if not os.path.exists(pid_file):
+        print "Already stopped."
+        return
+
     f = open(pid_file, "r")
     try:
         pid_str = f.read()
