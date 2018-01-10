@@ -25,9 +25,14 @@ def run(command):
 
     if command == "start":
         run_jar(jar_file, pid_file)
-        wait_until_port_is_open(port, 5)
-    elif command == "stop":
+        wait_until_port_is_open(port, 5, 5)
+
+    if command == "status":
+        wait_until_port_is_open(port, 1, 0)
+
+    if command == "stop":
         kill_process(pid_file)
+        wait_until_port_is_closed(port, 5, 5)
 
 
 def run_jar(jar_path, pid_file):
@@ -60,18 +65,42 @@ def download_and_show_progress(url, file_name):
     f.close()
 
 
-def wait_until_port_is_open(port, delay):
+def wait_until_port_is_open(port, count, delay):
     n = 0
-    while n < 5:
+    while True:
         print "Is application listening on port " + str(port) + "? "
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('127.0.0.1', port))
         if result == 0:
             print "Yes"
             return
-        print "No. Retrying in " + str(delay) + " seconds"
+
         n = n + 1
-        time.sleep(delay)
+        if n < count:
+            print "No. Retrying in " + str(delay) + " seconds"
+            time.sleep(delay)
+        else:
+            print "No."
+            return
+
+
+def wait_until_port_is_closed(port, count, delay):
+    n = 0
+    while True:
+        print "Is application listening on port " + str(port) + "? "
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('127.0.0.1', int(port)))
+        if result != 0:
+            print "No"
+            return
+
+        n = n + 1
+        if n < count:
+            print "Yes. Retrying in " + str(delay) + " seconds"
+            time.sleep(delay)
+        else:
+            print "Yes."
+            return
 
 
 def kill_process(pid_file):
