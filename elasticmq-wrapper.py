@@ -24,7 +24,8 @@ def run(command):
         download_and_show_progress(url, jar_file)
 
     if command == "start":
-        run_jar(jar_file, pid_file)
+        print "Will run and detach from CLI and return to prompt..."
+        run_jar(jar_file, pid_file, False)
         wait_until_port_is_open(port, 5, 5)
 
     if command == "status":
@@ -34,9 +35,17 @@ def run(command):
         kill_process(pid_file)
         wait_until_port_is_closed(port, 5, 5)
 
+    if command == "console":
+        print "Entered console mode (blocking, Ctrl-C to breakout)..."
+        run_jar(jar_file, pid_file, True)
 
-def run_jar(jar_path, pid_file):
-    proc = subprocess.Popen(["java", "-Dconfig.file=server.conf", "-jar", jar_path, "&", ], cwd=SCRIPT_FOLDER)
+
+def run_jar(jar_path, pid_file, consoleMode):
+    if consoleMode:
+        proc = subprocess.call(["java", "-Dconfig.file=server.conf", "-jar", jar_path], cwd=SCRIPT_FOLDER)
+    else:
+        proc = subprocess.Popen(["java", "-Dconfig.file=server.conf", "-jar", jar_path, "&", ], cwd=SCRIPT_FOLDER)
+
     f = open(pid_file, "w")
     f.write(str(proc.pid))
     f.close()
