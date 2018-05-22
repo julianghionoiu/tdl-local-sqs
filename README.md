@@ -6,6 +6,11 @@ To run:
 python local-sqs/elasticmq-wrapper.py start
 ```
 
+Console mode (blocking):
+```bash
+python local-sqs/elasticmq-wrapper.py console
+```
+
 To stop:
 ```bash
 python local-sqs/elasticmq-wrapper.py stop
