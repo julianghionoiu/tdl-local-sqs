@@ -4,7 +4,7 @@ import socket
 import subprocess
 import sys
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 SCRIPT_FOLDER = os.path.dirname(os.path.realpath(__file__))
 CACHE_FOLDER = os.path.join(SCRIPT_FOLDER, ".cache")
@@ -24,7 +24,7 @@ def run(command):
         download_and_show_progress(url, jar_file)
 
     if command == "start":
-        print "Will run and detach from CLI and return to prompt..."
+        print("Will run and detach from CLI and return to prompt...")
         run_jar(jar_file, pid_file, False)
         wait_until_port_is_open(port, 5, 5)
 
@@ -36,7 +36,7 @@ def run(command):
         wait_until_port_is_closed(port, 5, 5)
 
     if command == "console":
-        print "Entered console mode (blocking, Ctrl-C to breakout)..."
+        print("Entered console mode (blocking, Ctrl-C to breakout)...")
         run_jar(jar_file, pid_file, True)
 
 
@@ -52,11 +52,11 @@ def run_jar(jar_path, pid_file, consoleMode):
 
 
 def download_and_show_progress(url, file_name):
-    u = urllib2.urlopen(url)
+    u = urllib.request.urlopen(url)
     f = open(file_name, 'wb')
     meta = u.info()
-    file_size = int(meta.getheaders("Content-Length")[0])
-    print "Downloading: %s Bytes: %s" % (file_name, file_size)
+    file_size = int(meta.get_all("Content-Length")[0])
+    print("Downloading: %s Bytes: %s" % (file_name, file_size))
 
     file_size_dl = 0
     block_sz = 8192
@@ -69,7 +69,7 @@ def download_and_show_progress(url, file_name):
         f.write(buffer)
         status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
         status = status + chr(8) * (len(status) + 1)
-        print status,
+        print(status, end=' ')
 
     f.close()
 
@@ -77,50 +77,50 @@ def download_and_show_progress(url, file_name):
 def wait_until_port_is_open(port, count, delay):
     n = 0
     while True:
-        print "Is application listening on port " + str(port) + "? "
+        print("Is application listening on port " + str(port) + "? ")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('127.0.0.1', port))
         if result == 0:
-            print "Yes"
+            print("Yes")
             return
 
         n = n + 1
         if n < count:
-            print "No. Retrying in " + str(delay) + " seconds"
+            print("No. Retrying in " + str(delay) + " seconds")
             time.sleep(delay)
         else:
-            print "No."
+            print("No.")
             return
 
 
 def wait_until_port_is_closed(port, count, delay):
     n = 0
     while True:
-        print "Is application listening on port " + str(port) + "? "
+        print("Is application listening on port " + str(port) + "? ")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('127.0.0.1', int(port)))
         if result != 0:
-            print "No"
+            print("No")
             return
 
         n = n + 1
         if n < count:
-            print "Yes. Retrying in " + str(delay) + " seconds"
+            print("Yes. Retrying in " + str(delay) + " seconds")
             time.sleep(delay)
         else:
-            print "Yes."
+            print("Yes.")
             return
 
 
 def kill_process(pid_file):
     if not os.path.exists(pid_file):
-        print "Already stopped."
+        print("Already stopped.")
         return
 
     f = open(pid_file, "r")
     try:
         pid_str = f.read()
-        print "Kill process with pid: " + pid_str
+        print("Kill process with pid: " + pid_str)
         os.kill(int(pid_str), signal.SIGTERM)
     except Exception:
         f.close()
