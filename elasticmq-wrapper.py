@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 import urllib.request, urllib.error, urllib.parse
+import ssl
 
 SCRIPT_FOLDER = os.path.dirname(os.path.realpath(__file__))
 CACHE_FOLDER = os.path.join(SCRIPT_FOLDER, ".cache")
@@ -14,7 +15,7 @@ def run(command):
     if not os.path.exists(CACHE_FOLDER):
         os.mkdir(CACHE_FOLDER)
 
-    version = "0.13.8"
+    version = "1.4.2"
     port = 9324
     url = "https://s3-eu-west-1.amazonaws.com/softwaremill-public/elasticmq-server-" + version + ".jar"
     jar_file = os.path.join(CACHE_FOLDER, url.split('/')[-1])
@@ -52,7 +53,11 @@ def run_jar(jar_path, pid_file, consoleMode):
 
 
 def download_and_show_progress(url, file_name):
-    u = urllib.request.urlopen(url)
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+    u = urllib.request.urlopen(url, context=ctx)
     f = open(file_name, 'wb')
     meta = u.info()
     file_size = int(meta.get_all("Content-Length")[0])
