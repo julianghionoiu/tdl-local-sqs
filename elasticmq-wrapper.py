@@ -15,7 +15,7 @@ def run(command):
     if not os.path.exists(CACHE_FOLDER):
         os.mkdir(CACHE_FOLDER)
 
-    version = "1.4.2"
+    version = "1.6.11"
     port = 9324
     url = "https://s3-eu-west-1.amazonaws.com/softwaremill-public/elasticmq-server-" + version + ".jar"
     jar_file = os.path.join(CACHE_FOLDER, url.split('/')[-1])
